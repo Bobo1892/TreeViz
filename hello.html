@@ -4,10 +4,15 @@
     <link rel="stylesheet" href="popup.css">
   </head>
   <body>
-    <h1>Tree Visualizer</h1>
-    <input type="text" id="arrayInput" placeholder="Enter array...">
-    <button id="visualizeButton">Visualize</button>
-    <div id="treeContainer"></div>
+    <div id="inputPage">
+      <h1>Tree Visualizer</h1>
+      <input type="text" id="arrayInput" placeholder="Enter array...">
+      <button id="visualizeButton">Visualize</button>
+    </div>
+    <div id="visualizationPage" style="display: none;">
+      <button id="backButton">Back</button>
+      <div id="treeContainer"></div>
+    </div>
     <script src="popup.js"></script>
   </body>
 </html>
