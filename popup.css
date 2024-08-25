@@ -1,22 +1,66 @@
 body {
-    font-family: Arial, sans-serif;
-    width: 300px;
-    padding: 10px;
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 10px;
+  height: 100px;
+  width: 300px;
   }
   
-  #arrayInput {
-    width: 100%;
-    padding: 5px;
-    margin-bottom: 10px;
-  }
+#inputPage, #visualizationPage {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+#arrayInput {
+  width: 100%;
+  padding: 5px;
+  margin-bottom: 10px;
+}
+
+#visualizeButton {
+  width: 100%;
+  padding: 5px;
+  margin-bottom: 20px;
+}
+
+#visualizationPage {
+  display: none;
+  position: relative;
+}
   
-  #visualizeButton {
-    width: 100%;
-    padding: 5px;
-  }
+#treeContainer {
+  position: relative;
+  width: 90vw;
+  height: 80vh;
+  overflow: auto;
+  margin-top: 40px;
+  border: 1px solid #ccc;
+  background-color: #f9f9f9;
+  min-width: 300px;
+}
+
+.tree-node {
+  width: 50px;
+  height: 50px;
+  background-color: lightblue;
+  border: 1px solid black;
+  border-radius: 50%;
+  text-align: center;
+  line-height: 50px;
+  position: absolute;
+}
   
-  #treeContainer {
-    margin-top: 20px;
-    /* Add styles for tree visualization */
-  }
-  
+#backButton {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  padding: 10px;
+  background-color: #ddd;
+  border: none;
+  cursor: pointer;
+  z-index: 1000;
+}
