@@ -44,14 +44,15 @@ body {
 }
 
 .tree-node {
-  width: 50px;
-  height: 50px;
+  width: 30px;
+  height: 30px;
   background-color: lightblue;
   border: 1px solid black;
   border-radius: 50%;
   text-align: center;
-  line-height: 50px;
+  line-height: 30px;
   position: absolute;
+  z-index: 10;
 }
   
 #backButton {
@@ -63,4 +64,11 @@ body {
   border: none;
   cursor: pointer;
   z-index: 1000;
+}
+
+.tree-line {
+  position: absolute;
+  background-color: #000;
+  transform-origin: top left;
+  z-index: 1;
 }

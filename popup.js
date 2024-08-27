@@ -54,36 +54,59 @@ function visualizeTree(array) {
     return;
   }
 
-  const queue = [{ node: root, level: 0, position: 0 }];
-  const levelWidth = {};
-  const nodeSpacing = 60;
+  const nodeWidth = 43;
+  const horizontalSpacing = 20;
   const verticalSpacing = 100;
 
-  let maxLevel = 0;
-  queue.forEach(item => {
-    maxLevel = Math.max(maxLevel, item.level);
-    levelWidth[item.level] = (levelWidth[item.level] || 0) + 1;
-  });
+  function calculateTreeWidth(node, level = 0, position = 0) {
+    if (!node) return 0;
+    const leftWidth = calculateTreeWidth(node.left, level + 1, position * 2);
+    const rightWidth = calculateTreeWidth(node.right, level + 1, position * 2 + 1);
+    return Math.max(nodeWidth, leftWidth + rightWidth);
+  }
 
-  const totalWidth = Math.pow(2, maxLevel) * nodeSpacing;
-  treeContainer.style.width = `${totalWidth}px`;
+  const treeWidth = calculateTreeWidth(root);
+  treeContainer.style.width = `${treeWidth}px`;
 
-  while (queue.length > 0) {
-    const { node, level, position } = queue.shift();
-
-    const horizontalPosition = (position + 0.5) * (totalWidth / levelWidth[level]);
+  function positionNode(node, level = 0, position = 0, leftBoundary = 0, rightBoundary = treeWidth, parentCenter = null) {
+    if (!node) return;
 
     const nodeElement = document.createElement("div");
     nodeElement.className = "tree-node";
-    nodeElement.style.position = 'absolute';
-    nodeElement.style.top = `${level * verticalSpacing}px`;
     nodeElement.textContent = node.val;
+
+    const width = rightBoundary - leftBoundary;
+    const nodeCenter = leftBoundary + width / 2;
+
+    nodeElement.style.left = `${nodeCenter - nodeWidth / 2}px`;
+    nodeElement.style.top = `${level * verticalSpacing}px`;
 
     treeContainer.appendChild(nodeElement);
 
-    nodeElement.style.left = `${horizontalPosition - (nodeElement.offsetWidth / 2)}px`;
+    if (parentCenter !== null) {
+      const lineElement = document.createElement("div");
+      lineElement.className = "tree-line";
+      const x1 = parentCenter;
+      const y1 = (level - 1) * verticalSpacing + nodeWidth / 2;
+      const x2 = nodeCenter;
+      const y2 = level * verticalSpacing;
+    
+      const length = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+      const angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+    
+      lineElement.style.left = `${x1}px`;
+      lineElement.style.top = `${y1}px`;
+      lineElement.style.width = `${length}px`;
+      lineElement.style.height = '2px';
+      lineElement.style.transform = `rotate(${angle}deg)`;
+    
+      treeContainer.appendChild(lineElement);
+    }
 
-    if (node.left) queue.push({ node: node.left, level: level + 1, position: position * 2 });
-    if (node.right) queue.push({ node: node.right, level: level + 1, position: position * 2 + 1 });
+    const childWidth = width / 2;
+    positionNode(node.left, level + 1, position * 2, leftBoundary, leftBoundary + childWidth, nodeCenter);
+    positionNode(node.right, level + 1, position * 2 + 1, leftBoundary + childWidth, rightBoundary, nodeCenter);
   }
+
+  positionNode(root);
 }
