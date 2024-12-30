@@ -1,18 +1,3 @@
-document.getElementById("visualizeButton").addEventListener("click", function() {
-    const inputArray = document.getElementById("arrayInput").value;
-    const parsedArray = JSON.parse(inputArray);
-    visualizeTree(parsedArray);
-    document.getElementById("inputPage").style.display = "none";
-    document.getElementById("visualizationPage").style.display = "block";
-  });
-
-  document.getElementById("backButton").addEventListener("click", function() {
-    document.getElementById("visualizationPage").style.display = "none";
-    document.getElementById("inputPage").style.display = "block";
-
-    document.getElementById("treeContainer").innerHTML = "";
-});
-
 function TreeNode(val) {
   this.val = val;
   this.left = null;
@@ -109,4 +94,41 @@ function visualizeTree(array) {
   }
 
   positionNode(root);
+}
+
+// Logic for hello.html
+if (window.location.pathname.includes("hello.html")) {
+  document.getElementById("visualizeButton").addEventListener("click", function () {
+    const inputArray = document.getElementById("arrayInput").value;
+    const parsedArray = JSON.parse(inputArray);
+    if (parsedArray.length > 20) {
+      const data = encodeURIComponent(JSON.stringify(parsedArray));
+      chrome.tabs.create({ url: `visualization.html?data=${data}` });
+    } else {
+      visualizeTree(parsedArray);
+      document.getElementById("inputPage").style.display = "none";
+      document.getElementById("visualizationPage").style.display = "block";
+    }
+  });
+
+  document.getElementById("backButton").addEventListener("click", function () {
+    document.getElementById("visualizationPage").style.display = "none";
+    document.getElementById("inputPage").style.display = "block";
+
+    document.getElementById("treeContainer").innerHTML = "";
+  });
+}
+
+// Logic for visualization.html
+if (window.location.pathname.includes("visualization.html")) {
+  document.addEventListener("DOMContentLoaded", () => {
+    const params = new URLSearchParams(window.location.search);
+    const inputArray = JSON.parse(params.get("data"));
+
+    if (inputArray) {
+      visualizeTree(inputArray);
+    } else {
+      document.getElementById("treeContainer").innerHTML = "<p>Error: No data to visualize</p>";
+    }
+  });
 }
