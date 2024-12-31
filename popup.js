@@ -113,10 +113,18 @@ if (window.location.pathname.includes("hello.html")) {
 
   document.getElementById("backButton").addEventListener("click", function () {
     document.getElementById("visualizationPage").style.display = "none";
-    document.getElementById("inputPage").style.display = "block";
+    document.getElementById("inputPage").style.display = "flex";
 
     document.getElementById("treeContainer").innerHTML = "";
   });
+
+  document.getElementById("arrayInput").addEventListener("keypress", function (event) {
+    if (event.key === "Enter") {
+        event.preventDefault();
+        document.getElementById("visualizeButton").click();
+    }
+});
+
 }
 
 // Logic for visualization.html
@@ -132,3 +140,59 @@ if (window.location.pathname.includes("visualization.html")) {
     }
   });
 }
+
+//Logic for zooming and panning
+document.addEventListener("DOMContentLoaded", () => {
+  const treeContainer = document.getElementById("treeContainer");
+
+  let scale = 1;
+  const zoomStep = 0.1;
+  const minScale = 0.5;
+  const maxScale = 3;
+
+  treeContainer.addEventListener("wheel", (event) => {
+    event.preventDefault();
+
+    if (event.deltaY < 0) {
+      scale = Math.min(maxScale, scale + zoomStep);
+    } else {
+      scale = Math.max(minScale, scale - zoomStep);
+    }
+
+    treeContainer.style.transform = `scale(${scale})`;
+    treeContainer.style.transformOrigin = "center";
+  });
+});
+
+let isPanning = false;
+let startX, startY;
+
+treeContainer.addEventListener("mousedown", (event) => {
+  isPanning = true;
+  startX = event.clientX;
+  startY = event.clientY;
+  treeContainer.style.cursor = "grabbing";
+});
+
+treeContainer.addEventListener("mousemove", (event) => {
+  if (!isPanning) return;
+
+  const dx = event.clientX - startX;
+  const dy = event.clientY - startY;
+
+  treeContainer.scrollLeft -= dx;
+  treeContainer.scrollTop -= dy;
+
+  startX = event.clientX;
+  startY = event.clientY;
+});
+
+treeContainer.addEventListener("mouseup", () => {
+  isPanning = false;
+  treeContainer.style.cursor = "default";
+});
+
+treeContainer.addEventListener("mouseleave", () => {
+  isPanning = false;
+});
+
