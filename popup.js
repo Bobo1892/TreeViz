@@ -5,37 +5,54 @@ function TreeNode(val) {
 }
 
 function buildTreeFromArray(array) {
-  if (array.length === 0 || array[0] === null) return null;
-  let root = new TreeNode(array[0]);
-  let queue = [root];
+  if (!array.length || array[0] === null) return null;
+
+  const root = new TreeNode(array[0]);
+  const queue = [root];
   let i = 1;
 
-  while (i < array.length) {
-    let currentNode = queue.shift();
-    if (array[i] !== null) {
-      currentNode.left = new TreeNode(array[i]);
-      queue.push(currentNode.left);
+  while (i < array.length && queue.length > 0) {
+    const parent = queue.shift();
+    if (!parent) {
+      if (i < array.length) {
+        queue.push(null);
+        i++;
+      }
+      if (i < array.length) {
+        queue.push(null);
+        i++;
+      }
+      continue;
     }
-    i++;
 
-    if (i >= array.length) break;
-    if (array[i] !== null) {
-      currentNode.right = new TreeNode(array[i]);
-      queue.push(currentNode.right);
+    if (i < array.length) {
+      if (array[i] !== null) {
+        parent.left = new TreeNode(array[i]);
+      }
+      queue.push(parent.left ?? null);
+      i++;
     }
-    i++;
+
+    if (i < array.length) {
+      if (array[i] !== null) {
+        parent.right = new TreeNode(array[i]);
+      }
+      queue.push(parent.right ?? null);
+      i++;
+    }
   }
-  
+
   return root;
 }
 
 function visualizeTree(array) {
+  const treeInner = document.getElementById("treeInner");
   const treeContainer = document.getElementById("treeContainer");
-  treeContainer.innerHTML = "";
+  treeInner.innerHTML = "";
   const root = buildTreeFromArray(array);
 
   if (!root) {
-    treeContainer.innerHTML = "<p>No tree to visualize</p>";
+    treeInner.innerHTML = "<p>No tree to visualize</p>";
     return;
   }
 
@@ -51,7 +68,7 @@ function visualizeTree(array) {
   }
 
   const treeWidth = calculateTreeWidth(root);
-  treeContainer.style.width = `${treeWidth}px`;
+  treeInner.style.width = `${treeWidth}px`;
 
   function positionNode(node, level = 0, position = 0, leftBoundary = 0, rightBoundary = treeWidth, parentCenter = null) {
     if (!node) return;
@@ -66,7 +83,7 @@ function visualizeTree(array) {
     nodeElement.style.left = `${nodeCenter - nodeWidth / 2}px`;
     nodeElement.style.top = `${level * verticalSpacing}px`;
 
-    treeContainer.appendChild(nodeElement);
+    treeInner.appendChild(nodeElement);
 
     if (parentCenter !== null) {
       const lineElement = document.createElement("div");
@@ -85,7 +102,7 @@ function visualizeTree(array) {
       lineElement.style.height = '2px';
       lineElement.style.transform = `rotate(${angle}deg)`;
     
-      treeContainer.appendChild(lineElement);
+      treeInner.appendChild(lineElement);
     }
 
     const childWidth = width / 2;
@@ -114,9 +131,15 @@ if (window.location.pathname.includes("hello.html")) {
   document.getElementById("backButton").addEventListener("click", function () {
     document.getElementById("visualizationPage").style.display = "none";
     document.getElementById("inputPage").style.display = "flex";
-
-    document.getElementById("treeContainer").innerHTML = "";
+    const treeInner = document.getElementById("treeInner");
+    if (treeInner) {
+      treeInner.innerHTML = "";
+    }
   });
+
+  if (document.getElementById("treeInner")) {
+    document.getElementById("treeInner").innerHTML = "";
+  }
 
   document.getElementById("arrayInput").addEventListener("keypress", function (event) {
     if (event.key === "Enter") {
@@ -124,7 +147,6 @@ if (window.location.pathname.includes("hello.html")) {
         document.getElementById("visualizeButton").click();
     }
 });
-
 }
 
 // Logic for visualization.html
@@ -136,63 +158,62 @@ if (window.location.pathname.includes("visualization.html")) {
     if (inputArray) {
       visualizeTree(inputArray);
     } else {
-      document.getElementById("treeContainer").innerHTML = "<p>Error: No data to visualize</p>";
+      document.getElementById("treeInner").innerHTML = "<p>Error: No data to visualize</p>";
     }
   });
 }
 
 //Logic for zooming and panning
 document.addEventListener("DOMContentLoaded", () => {
-  const treeContainer = document.getElementById("treeContainer");
-
+  let isPanning = false;
+  let startX, startY;
+  let offsetX = 0, offsetY = 0;
   let scale = 1;
+
   const zoomStep = 0.1;
   const minScale = 0.5;
   const maxScale = 3;
 
+  const treeInner = document.getElementById("treeInner");
+  const treeContainer = document.getElementById("treeContainer");
+
+  // Zoom logic
   treeContainer.addEventListener("wheel", (event) => {
     event.preventDefault();
 
     if (event.deltaY < 0) {
-      scale = Math.min(maxScale, scale + zoomStep);
+      scale = Math.min(maxScale, scale + zoomStep); // Zoom in
     } else {
-      scale = Math.max(minScale, scale - zoomStep);
+      scale = Math.max(minScale, scale - zoomStep); // Zoom out
     }
 
-    treeContainer.style.transform = `scale(${scale})`;
-    treeContainer.style.transformOrigin = "center";
+    treeInner.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
   });
-});
 
-let isPanning = false;
-let startX, startY;
+  // Pan logic
+  treeContainer.addEventListener("mousedown", (event) => {
+    isPanning = true;
+    startX = event.clientX - offsetX;
+    startY = event.clientY - offsetY;
+    treeContainer.style.cursor = "grabbing";
+  });
 
-treeContainer.addEventListener("mousedown", (event) => {
-  isPanning = true;
-  startX = event.clientX;
-  startY = event.clientY;
-  treeContainer.style.cursor = "grabbing";
-});
+  treeContainer.addEventListener("mousemove", (event) => {
+    if (!isPanning) return;
 
-treeContainer.addEventListener("mousemove", (event) => {
-  if (!isPanning) return;
+    offsetX = event.clientX - startX;
+    offsetY = event.clientY - startY;
 
-  const dx = event.clientX - startX;
-  const dy = event.clientY - startY;
+    treeInner.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
+  });
 
-  treeContainer.scrollLeft -= dx;
-  treeContainer.scrollTop -= dy;
+  treeContainer.addEventListener("mouseup", () => {
+    isPanning = false;
+    treeContainer.style.cursor = "default";
+  });
 
-  startX = event.clientX;
-  startY = event.clientY;
-});
-
-treeContainer.addEventListener("mouseup", () => {
-  isPanning = false;
-  treeContainer.style.cursor = "default";
-});
-
-treeContainer.addEventListener("mouseleave", () => {
-  isPanning = false;
+  treeContainer.addEventListener("mouseleave", () => {
+    isPanning = false;
+  });
 });
 

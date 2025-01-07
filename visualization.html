@@ -25,10 +25,19 @@
       overflow: auto;
       background-color: white;
     }
+
+    #treeInner {
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform-origin: 0 0;
+  }
   </style>
 </head>
 <body>
-  <div id="treeContainer"></div>
+  <div id="treeContainer">
+    <div id="treeInner"></div>
+  </div>
   <script src="popup.js"></script>
 </body>
 </html>
